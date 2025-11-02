@@ -1,0 +1,25 @@
+import { NextResponse } from "next/server";
+
+const CORRECT_PASSWORD = 'drill2024';
+
+export async function POST(request: Request){
+    try{
+        const { password } = await request.json();
+
+        if (password == CORRECT_PASSWORD){
+            const response = NextResponse.json({ success: true});
+            response.cookies.set('authenticated', 'true', {
+                httpOnly: true,
+                secure: process.env.MODE_ENV == 'production',
+                sameSite: 'strict',
+                maxAge: 60 * 60 * 24 * 7
+            });
+            return response;
+        }
+
+        return NextResponse.json({ success: false, error: 'Неверный пароль'}, { status: 401});
+    }
+    catch {
+        return NextResponse.json({ success: false, error: 'Ошибка червера' }, { status: 500});
+    }
+}
